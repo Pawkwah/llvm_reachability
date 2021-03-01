@@ -14,7 +14,7 @@ if (DEFINED LLVM_DIR)
 	set(CMAKE_C_FLAGS "-fPIC")
 
 find_package(LLVM REQUIRED CONFIG)
-
+    
     list(APPEND CMAKE_MODULE_PATH "${LLVM_CMAKE_DIR}")
     include(AddLLVM)
 
@@ -42,8 +42,10 @@ endif()
 
 if(CMAKE_BUILD_TYPE MATCHES "Debug")
     MESSAGE (STATUS "building SVF in debug mode")
-    set(SVF_LIB "${SVF_DIR}/Debug-build/lib/libSvf.a")
-    set(LLVMCudd "${SVF_DIR}/Debug-build/lib/CUDD/libCudd.a")
+    
+    set(SVF_LIB "${SVF_DIR}/Release-build/lib/libSvf.a")
+    set(LLVMCudd "${SVF_DIR}/Release-build/lib/CUDD/libCudd.a")
+    
 else()
     MESSAGE (STATUS "building SVF in release mode")
     set(SVF_LIB "${SVF_DIR}/Release-build/lib/libSvf.a")
@@ -53,5 +55,9 @@ set(SVF_HEADER "${SVF_DIR}/include")
 include_directories(${SVF_HEADER})
 
 
+#In each Assignment, please change the directory file name
+
+
 
 add_subdirectory(project3)
+
