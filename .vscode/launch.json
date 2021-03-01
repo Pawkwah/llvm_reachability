@@ -19,7 +19,6 @@
                     "ignoreFailures": true
                 }
             ],
-            "preLaunchTask": "C/C++: cpp build active file"
         }
     ]
 }

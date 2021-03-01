@@ -50,5 +50,6 @@ WORKDIR ${HOME}
 WORKDIR ${HOME}
 RUN git clone "https://github.com/githubcmtest/cs4240_project3"
 WORKDIR ${HOME}/cs4240_project3
+RUN mv .vscode ../.vscode
 RUN cmake -DCMAKE_BUILD_TYPE=Debug .
 RUN make
