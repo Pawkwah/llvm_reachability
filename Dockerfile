@@ -25,7 +25,6 @@ WORKDIR ${HOME}/temp
 RUN wget https://cmake.org/files/v3.19/cmake-3.19.1.tar.gz 
 RUN tar -xzvf cmake-3.19.1.tar.gz 
 WORKDIR ${HOME}/temp/cmake-3.19.1/
-RUN ls -al
 RUN ./bootstrap 
 RUN make -j4 
 RUN make install
@@ -46,7 +45,6 @@ ENV SVF_DIR=${HOME}/SVF
 ENV LLVM_DIR=${HOME}/SVF/llvm-$llvm_version.obj
 
 # Fetch and build SVF-Teaching example.
-WORKDIR ${HOME}
 WORKDIR ${HOME}
 RUN git clone "https://github.com/githubcmtest/cs4240_project3"
 WORKDIR ${HOME}/cs4240_project3
