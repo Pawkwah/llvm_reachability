@@ -23,7 +23,7 @@
 
 #include "SVF-FE/LLVMUtil.h"
 #include "SVF-FE/PAGBuilder.h"
-
+#include <tuple>
 using namespace SVF;
 using namespace llvm;
 using namespace std;
@@ -31,6 +31,31 @@ using namespace std;
 static llvm::cl::opt<std::string> InputFilename(cl::Positional,
         llvm::cl::desc("<input bitcode>"), llvm::cl::init("-"));
 
+
+void traverseOnICFG(ICFG* icfg, const Instruction* inst, const Instruction* sink)
+{
+    ICFGNode* iNode = icfg->getBlockICFGNode(inst);
+    FIFOWorkList<const ICFGNode*> worklist;
+    Set<const ICFGNode*> visited;
+    worklist.push(iNode);
+
+    /// Traverse along ICFG
+    while (!worklist.empty())
+    {
+        const ICFGNode* vNode = worklist.pop();
+        for (ICFGNode::const_iterator it = iNode->OutEdgeBegin(), eit =
+                    iNode->OutEdgeEnd(); it != eit; ++it)
+        {
+            ICFGEdge* edge = *it;
+            ICFGNode* succNode = edge->getDstNode();
+            if (visited.find(succNode) == visited.end())
+            {
+                visited.insert(succNode);
+                worklist.push(succNode);
+            }
+        }
+    }
+}
 
 int main(int argc, char ** argv) {
 
@@ -46,7 +71,16 @@ int main(int argc, char ** argv) {
     /// Build Program Assignment Graph (PAG)
     PAGBuilder builder;
     PAG* pag = builder.build (svfModule);
-    // pag->dump ("pag");
+
+    ICFG* icfg = pag->getICFG();
+    icfg->dump("icfg");
+
+    //We need to find the src and sink within the icfg, some helpful stuff that I'm not totally sure how to use yet are:
+    // classof() func in include/graphs/ICFGNode.h
+    //FunEntryBlockNode* getFunEntryBlockNode(const SVFFunction*  fun); in include/graphs/ICFG.h
+
+    //once we get these blocks we can iterate through all of the paths starting from src and end with sink that dont loop
+    // there is a icfg.dot extension in vscode that lets you read the icfg.dot file that can help us kinda interpret what is happening 
 
 
     return 0;
