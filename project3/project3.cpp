@@ -23,6 +23,7 @@
 
 #include "SVF-FE/LLVMUtil.h"
 #include "SVF-FE/PAGBuilder.h"
+#include <iostream>
 #include <tuple>
 using namespace SVF;
 using namespace llvm;
@@ -74,6 +75,18 @@ int main(int argc, char ** argv) {
 
     ICFG* icfg = pag->getICFG();
     icfg->dump("icfg");
+
+    const SVFFunction* srcFunc;
+    const SVFFunction* sinkFunc;
+    for (auto it = svfModule->begin(); it != svfModule->end(); ++it) {
+        const SVFFunction* fun = *it;
+        if (fun->getName().str() == "src") srcFunc = fun;
+        else if (fun->getName().str() == "sink") sinkFunc = fun;
+    }
+
+    auto srcNode = icfg->getFunEntryBlockNode(srcFunc);
+    auto sinkNode = icfg->getFunEntryBlockNode(sinkFunc);
+    cout << srcNode->toString() << endl << sinkNode->toString() << endl;
 
     //We need to find the src and sink within the icfg, some helpful stuff that I'm not totally sure how to use yet are:
     // classof() func in include/graphs/ICFGNode.h
