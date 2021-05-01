@@ -109,7 +109,7 @@ int main(int argc, char ** argv) {
     PAG* pag = builder.build (svfModule);
 
     ICFG* icfg = pag->getICFG();
-    icfg->dump("icfg");
+    // icfg->dump("icfg");
 
     const SVFFunction* srcFunc;
     const SVFFunction* sinkFunc;
