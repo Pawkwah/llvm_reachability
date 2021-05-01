@@ -25,6 +25,7 @@
 #include "SVF-FE/PAGBuilder.h"
 #include <iostream>
 #include <tuple>
+#include <queue>
 using namespace SVF;
 using namespace llvm;
 using namespace std;
@@ -36,8 +37,8 @@ static llvm::cl::opt<std::string> InputFilename(cl::Positional,
 void traverseOnICFG(ICFG* icfg, const Instruction* inst, const Instruction* sink)
 {
     ICFGNode* iNode = icfg->getBlockICFGNode(inst);
-    FIFOWorkList<const ICFGNode*> worklist;
-    Set<const ICFGNode*> visited;
+    FIFOWorkList<ICFGNode*> worklist;
+    Set<ICFGNode*> visited;
     worklist.push(iNode);
 
     /// Traverse along ICFG
@@ -57,6 +58,28 @@ void traverseOnICFG(ICFG* icfg, const Instruction* inst, const Instruction* sink
         }
     }
 }
+
+void print_paths(ICFGNode* src, ICFGNode* dst, Set<ICFGNode*> visited, queue <ICFGNode*> curPath) {
+    if (src == dst) {
+        while (!curPath.empty())
+            cout << curPath.front()->toString();
+            cout << "-->";
+            curPath.pop();
+        cout << "/n";
+    } else {
+        visited.push(src);
+        curPath.push(src);
+        for (auto it = src->OutEdgeBegin(); it != src->OutEdgeEnd(); ++it) {
+            if (visited.count(it->getDstNode()) == 0)
+            {
+                print_paths(it->getDstNode, dst, visited, curPath);
+            }
+        }
+    }
+    curPath.erase(src);
+    visited.erase(src);
+}
+
 
 int main(int argc, char ** argv) {
 
@@ -103,6 +126,13 @@ int main(int argc, char ** argv) {
             }
         }
     }
+
+    Set<const ICFGNode*> visited;
+    //Set<const queue <const ICFGNode*>> paths;
+    queue <const ICFGNode*> curPath;
+
+    print_paths(srcNode, sinkNode, visited, curPath);
+
 
     // cout << srcNode->toString() << endl << sinkNode->toString() << endl;
 
