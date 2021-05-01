@@ -58,6 +58,41 @@ void traverseOnICFG(ICFG* icfg, const Instruction* inst, const Instruction* sink
     }
 }
 
+void printAllPathsHelper(ICFGNode* u, ICFGNode* v, set<ICFGNode*>* visited, vector<ICFGNode*>* path, int &index, bool &reachable) {
+    visited->insert(u);
+    (*path)[index] = u;
+    index++;
+
+    if (u == v) {
+        if (!reachable) {
+            reachable = true;
+            cout << "Reachable" << endl;
+        }
+        for (int i = 0; i < index; i++) cout << "-->" << (*path)[i]->getId();
+        cout << endl;
+    } else {
+        for (auto it = u->OutEdgeBegin(); it != u->OutEdgeEnd(); ++it) {
+            auto* edge = *it;
+            auto* s = edge->getDstNode();
+            if (visited->find(s) == visited->end()) printAllPathsHelper(s, v, visited, path, index, reachable);
+        }
+    }
+
+    index--;
+    visited->erase(u);
+}
+
+void printAllPaths(const ICFGNode* src, const ICFGNode* sink, int count, bool &reachable) {
+    set<ICFGNode*> visited;
+    vector<ICFGNode*> path;
+    path.resize(count);
+
+    ICFGNode* u = const_cast<ICFGNode*>(src);
+    ICFGNode* v = const_cast<ICFGNode*>(sink);
+    int index = 0;
+    printAllPathsHelper(u, v, &visited, &path, index, reachable);
+}
+
 int main(int argc, char ** argv) {
 
     int arg_num = 0;
@@ -91,6 +126,7 @@ int main(int argc, char ** argv) {
     const CallBlockNode* srcNode;
     const CallBlockNode* sinkNode;
 
+    int count = 0;
     for (auto it = icfg->begin(); it != icfg->end(); ++it) {
         const auto* node = it->second;
         if (node->getNodeKind() == ICFGNode::FunCallBlock) {
@@ -102,10 +138,15 @@ int main(int argc, char ** argv) {
                 // cout << edge->getDstNode()->toString() << endl << endl;
             }
         }
+        count++;
     }
 
     // cout << srcNode->toString() << endl << sinkNode->toString() << endl;
+    // cout << srcNode->getId() << endl << sinkNode->getId() << endl;
 
+    bool reachable = false;
+    printAllPaths(srcNode, sinkNode, count, reachable);
+    if (!reachable) cout << "Unreachable" << endl;
 
     //We need to find the src and sink within the icfg, some helpful stuff that I'm not totally sure how to use yet are:
     // classof() func in include/graphs/ICFGNode.h
