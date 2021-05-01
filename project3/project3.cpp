@@ -84,9 +84,28 @@ int main(int argc, char ** argv) {
         else if (fun->getName().str() == "sink") sinkFunc = fun;
     }
 
-    auto srcNode = icfg->getFunEntryBlockNode(srcFunc);
-    auto sinkNode = icfg->getFunEntryBlockNode(sinkFunc);
-    cout << srcNode->toString() << endl << sinkNode->toString() << endl;
+    auto* srcEntryNode = icfg->getFunEntryBlockNode(srcFunc);
+    auto* sinkEntryNode = icfg->getFunEntryBlockNode(sinkFunc);
+    // cout << srcEntryNode->toString() << endl << sinkEntryNode->toString() << endl;
+
+    const CallBlockNode* srcNode;
+    const CallBlockNode* sinkNode;
+
+    for (auto it = icfg->begin(); it != icfg->end(); ++it) {
+        const auto* node = it->second;
+        if (node->getNodeKind() == ICFGNode::FunCallBlock) {
+            for (auto it = node->OutEdgeBegin(); it != node->OutEdgeEnd(); ++it) {
+                auto* edge = *it;
+                if (edge->getDstNode() == srcEntryNode) srcNode = (CallBlockNode*) node;
+                if (edge->getDstNode() == sinkEntryNode) sinkNode = (CallBlockNode*) node;
+                // cout << edge->getSrcNode()->toString() << endl;
+                // cout << edge->getDstNode()->toString() << endl << endl;
+            }
+        }
+    }
+
+    // cout << srcNode->toString() << endl << sinkNode->toString() << endl;
+
 
     //We need to find the src and sink within the icfg, some helpful stuff that I'm not totally sure how to use yet are:
     // classof() func in include/graphs/ICFGNode.h
